@@ -84,10 +84,11 @@ Broker.prototype.bindExchange = function( source, target, keys, connectionName )
 	return this.connections[ connectionName ].createBinding( { source: source, target: target, keys: keys } );
 };
 
-Broker.prototype.bindQueue = function( source, target, keys, connectionName ) {
+Broker.prototype.bindQueue = function( source, target, keys, connectionName, boundHandler ) {
 	connectionName = connectionName || 'default';
+	boundHandler = (boundHandler) ? true : false;
 	return this.connections[ connectionName ].createBinding(
-		{ source: source, target: target, keys: keys, queue: true },
+		{ source: source, target: target, keys: keys, queue: true, boundHandler: boundHandler },
 		connectionName
 	);
 };
@@ -134,9 +135,10 @@ Broker.prototype.getQueue = function( name, connectionName ) {
 	return this.connections[ connectionName ].channels[ 'queue:' + name ];
 };
 
-Broker.prototype.handle = function( messageType, handler, context ) {
+Broker.prototype.handle = function( messageType, handler, context, boundQueue ) {
 	this.hasHandles = true;
-	var subscription = dispatch.subscribe( messageType, handler.bind( context ) );
+	var subscriptionKey = (boundQueue && typeof boundQueue == 'string') ? boundQueue + ':' + messageType : messageType;
+	var subscription = dispatch.subscribe( subscriptionKey, handler.bind( context ) );
 	if ( this.autoNack ) {
 		subscription.catch( function( err, msg ) {
 			console.log( 'Handler for "' + messageType + '" failed with:', err.stack );

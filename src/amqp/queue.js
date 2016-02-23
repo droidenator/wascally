@@ -235,6 +235,7 @@ function subscribe( channelName, channel, topology, messages, options ) {
 				onPublish
 			);
 		} else {
+			/** Now to just somehow modify this key :/ **/
 			dispatch.publish( raw.type, raw, onPublish );
 		}
 	}, options )

@@ -127,13 +127,14 @@ Topology.prototype.createBinding = function( options ) {
 		var call = options.queue ? 'bindQueue' : 'bindExchange';
 		var source = options.source;
 		var target = options.target;
+		var boundHandler = options.boundHandler;
 		var keys = getKeys( options.keys );
 		var channel = this.getChannel( 'control' );
 		log.info( 'Binding \'%s\' to \'%s\' on \'%s\' with keys: %s',
 			target, source, this.connection.name, JSON.stringify( keys ) );
 		this.promises[ id ] = promise = when.all(
 			_.map( keys, function( key ) {
-				return channel[ call ]( target, source, key );
+				return channel[ call ]( target, source, key, boundHandler );
 			} ) );
 	}
 	return promise;
